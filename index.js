@@ -15,32 +15,27 @@ app.get('/', (req, res) => {
   res.sendFile(`${__dirname}/index.html`);
 });
 
-// user join to server
 io.on('connection', (socket) => {
     socket.on('join', (name) => {
-        userService.addUser({
+        usersService.addUser({
             id: socket.id,
             name
         });
-// update user list
         io.emit('update', {
-            users: userService.getAllUsers()
+            users: usersService.getAllUsers()
         });
     });
 });
 
-// user disconnect with server
 io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     usersService.removeUser(socket.id);
-// update user list
     socket.broadcast.emit('update', {
       users: usersService.getAllUsers()
     });
   });
 });
 
-// user send a message
 io.on('connection', (socket) => {
   socket.on('message', (message) => {
     const {name} = usersService.getUserById(socket.id);
